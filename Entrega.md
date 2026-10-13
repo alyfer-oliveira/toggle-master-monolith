@@ -20,7 +20,7 @@
 - **Diagrama da arquitetura:** [inserir link]
 - **Vídeo de demonstração (até 15 minutos):** [inserir link]
 - **Aplicação implantada (IP ou DNS):** [inserir endereço, se aplicável]
-- **Estimativa da AWS:** [inserir link ou identificar o arquivo/print anexado]
+- **Estimativa da AWS:** https://calculator.aws/#/estimate?id=7d0c874d49c46e28e7a05c8d1e658c78747d185c
 
 ---
 
