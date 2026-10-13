@@ -67,17 +67,17 @@ A avaliação abaixo considera a solução implementada pelo grupo durante o des
 | 11 | **Logs** | **Atende parcialmente** | A aplicação pode emitir logs durante sua execução no container. O local de coleta e retenção dos logs da implantação deve ser registrado. **Evidência:** [inserir captura de logs do container/EC2 ou configuração do CloudWatch, se utilizada]. Para produção, direcionar logs para uma saída centralizada, definir retenção e garantir que credenciais e dados sensíveis não sejam registrados. |
 | 12 | **Processos administrativos** | **Precisa de evolução** | O projeto não documenta, no material disponível, processos administrativos pontuais separados da execução da API, como migrações ou rotinas operacionais. **Evidência:** [descrever se alguma tarefa administrativa foi executada e como]. Para produção, documentar e automatizar essas tarefas para que sejam executadas sob demanda, com a mesma versão e configurações da aplicação, sem depender de alterações manuais não rastreáveis na EC2. |
 
-> **Nota:** Ajustem as avaliações se a implantação final do grupo diferir do descrito neste documento. Não incluam credenciais, chaves privadas, valores de segredos ou capturas que os revelem.
+## 4. Pontos observados no código
 
-## 4. Arquitetura e tecnologias
+## 5. Arquitetura e tecnologias
 
-### 4.1 Arquitetura proposta/implantada
+### 5.1 Arquitetura proposta/implantada
 
 A solução utiliza uma VPC com sub-redes públicas e privadas. A instância EC2 executa a aplicação e recebe o tráfego permitido pelas regras do seu Security Group. O Amazon RDS fica em sub-rede privada e aceita conexões na porta do banco somente do Security Group da EC2. O AWS Secrets Manager armazena as credenciais consumidas no processo de implantação/execução.
 
 **Fluxo principal:**
 
-1. O usuário envia uma requisição HTTP/HTTPS para o endereço público da aplicação;
+1. O usuário envia uma requisição HTTP para o endereço público da aplicação;
 2. A instância EC2 recebe a requisição conforme as regras do Security Group;
 3. A API processa a operação solicitada sobre uma *feature flag*;
 4. A aplicação conecta-se ao RDS por rede privada para consultar ou persistir os dados;
@@ -86,7 +86,7 @@ A solução utiliza uma VPC com sub-redes públicas e privadas. A instância EC2
 **Diagrama da arquitetura:** [inserir link para Miro, diagrams.net ou outro recurso]  
 **Imagem do diagrama:** [inserir ou anexar figura]
 
-### 4.2 Tecnologias e componentes
+### 5.2 Tecnologias e componentes
 
 | Tecnologia/componente | Uso no projeto | Justificativa |
 |---|---|---|
@@ -98,7 +98,7 @@ A solução utiliza uma VPC com sub-redes públicas e privadas. A instância EC2
 | Amazon VPC, sub-redes e Security Groups | Segmentação e controle de tráfego | Define a comunicação entre EC2, RDS e usuários. |
 | Elastic IP ([confirmar se utilizado]) | Endereço IPv4 público estável para a EC2, se aplicável | Facilita o acesso por endereço fixo. |
 
-### 4.3 Segurança, privacidade e dados
+### 5.3 Segurança, privacidade e dados
 
 - As credenciais do banco são armazenadas no AWS Secrets Manager e não devem ser incluídas no repositório ou em evidências sem mascaramento.
 - O RDS deve permanecer em sub-redes privadas, sem acesso público, e aceitar conexões somente do Security Group da EC2.
@@ -107,9 +107,9 @@ A solução utiliza uma VPC com sub-redes públicas e privadas. A instância EC2
 - A solução é um MVP acadêmico. Autenticação/autorização da API, TLS público, cópias de segurança, monitoramento, gestão de patches e alta disponibilidade devem ser avaliados conforme os requisitos de produção.
 - **Dados tratados pela aplicação e classificação:** [descrever; não afirmar tratamento de dados pessoais sem verificar].
 
-## 5. Desenvolvimento e implementação
+## 6. Desenvolvimento e implementação
 
-### 5.1 Etapas executadas
+### 6.1 Etapas executadas
 
 1. Acesso ao repositório e análise da estrutura da aplicação;
 2. Execução local para compreender o funcionamento da API;
@@ -122,7 +122,7 @@ A solução utiliza uma VPC com sub-redes públicas e privadas. A instância EC2
 
 **Etapas efetivamente concluídas e diferenças em relação à lista:** [preencher com o que o grupo realmente realizou].
 
-### 5.2 Estrutura do projeto
+### 6.2 Estrutura do projeto
 
 O código-fonte e seus componentes estão disponíveis no repositório: https://github.com/dougls/toggle-master-monolith.
 
@@ -130,7 +130,7 @@ O código-fonte e seus componentes estão disponíveis no repositório: https://
 - `Dockerfile`: instruções para construir a imagem e instalar dependências;
 - `[outros arquivos/diretórios principais]`: [descrever após conferir a estrutura usada].
 
-### 5.3 Como executar e avaliar
+### 6.3 Como executar e avaliar
 
 > Os comandos abaixo são um roteiro. Ajustem nomes de arquivos, portas e variáveis aos valores reais do projeto. Não coloquem credenciais reais neste documento.
 
@@ -155,7 +155,7 @@ O código-fonte e seus componentes estão disponíveis no repositório: https://
 **Endpoint público e porta:** [preencher]  
 **Exemplos de requisições para CRUD:** [inserir endpoints/métodos e exemplos sem dados sensíveis]
 
-## 6. Validação e resultados
+## 7. Validação e resultados
 
 A validação deve demonstrar que a API responde publicamente, consegue se conectar ao RDS e mantém os dados após a operação. Preencham os resultados com evidências reais da execução.
 
@@ -170,7 +170,7 @@ A validação deve demonstrar que a API responde publicamente, consegue se conec
 | Isolamento do RDS | Banco aceita conexão da EC2 e não fica aberto ao público | [inserir regra do Security Group e evidência] | [Aprovado/Pendente] |
 | Gestão das credenciais | Credenciais vêm do Secrets Manager sem serem exibidas | [inserir evidência mascarada] | [Aprovado/Pendente] |
 
-### 6.1 Estimativa de custos AWS
+### 7.1 Estimativa de custos AWS
 
 A estimativa deve ser produzida na Calculadora de Preços da AWS e corresponder à região, às dimensões e ao período considerados. Incluam também o print solicitado no enunciado.
 
@@ -180,14 +180,14 @@ A estimativa deve ser produzida na Calculadora de Preços da AWS e corresponder 
 - **Link da estimativa ou arquivo/captura:** [inserir]
 - **Observações sobre itens não incluídos:** [por exemplo, tráfego variável, impostos ou serviços adicionais, se aplicável]
 
-### 6.2 Limitações conhecidas
+### 7.2 Limitações conhecidas
 
 - A solução desta fase é um MVP monolítico executado em uma instância EC2;
 - A alta disponibilidade e a escalabilidade automática não estão demonstradas, salvo se configuradas pelo grupo;
 - [Registrar limitações de autenticação, observabilidade, backup, TLS, automação ou testes que realmente se aplicarem];
 - [Registrar cenários não validados].
 
-## 7. Gestão do trabalho em equipe
+## 8. Gestão do trabalho em equipe
 
 O grupo é composto por cinco integrantes. A equipe utilizou o repositório GitHub para compartilhar o código do projeto. Registrem também as ferramentas de comunicação e acompanhamento usadas durante a atividade.
 
@@ -195,7 +195,7 @@ O grupo é composto por cinco integrantes. A equipe utilizou o repositório GitH
 - **Comunicação:** [preencher]
 - **Acompanhamento das tarefas:** [preencher]
 
-### 7.1 Contribuições
+### 8.1 Contribuições
 
 | Integrante | Contribuições realizadas |
 |---|---|
@@ -205,13 +205,13 @@ O grupo é composto por cinco integrantes. A equipe utilizou o repositório GitH
 | João Guilherme Schneider da Silva | [preencher responsabilidades e entregas] |
 | Luciano Luan da Silva Alves | [preencher responsabilidades e entregas] |
 
-### 7.2 Desafios e aprendizados
+### 8.2 Desafios e aprendizados
 
 - **Desafio encontrado:** [descrever problema real]
 - **Decisão ou solução adotada:** [descrever o que o grupo fez]
 - **Aprendizado:** [descrever o resultado ou conhecimento adquirido]
 
-## 8. Conclusão e próximos passos
+## 9. Conclusão e próximos passos
 
 A Fase 1 propõe validar o ToggleMaster como um MVP de gerenciamento de *feature flags* e exercitar a implantação de uma aplicação monolítica na AWS. A arquitetura definida separa a execução da aplicação, hospedada na EC2, do armazenamento de dados, fornecido pelo RDS, e utiliza recursos da AWS para segmentação de rede e gestão de credenciais.
 
@@ -226,8 +226,6 @@ A conclusão final deve refletir os resultados efetivamente demonstrados pelo gr
 - [Adicionar outras fontes realmente utilizadas.]
 
 ## Apêndices e evidências
-
-Incluam, com credenciais e informações sensíveis ocultadas:
 
 - diagrama da arquitetura AWS;
 - capturas das sub-redes e dos Security Groups;
