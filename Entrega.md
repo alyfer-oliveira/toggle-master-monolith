@@ -2,7 +2,7 @@
 ## Tech Challenge — Fase 1
 
 **Grupo:** ToggleMaster  
-**Data da entrega:** [preencher]
+**Data da entrega:** 03/11/2026
 
 ### Integrantes
 
@@ -19,8 +19,8 @@
 - **Repositório Base:** https://github.com/dougls/toggle-master-monolith
 - **Diagrama da arquitetura:** [inserir link]
 - **Vídeo de demonstração (até 15 minutos):** [inserir link]
-- **Aplicação implantada (IP ou DNS):** [inserir endereço, se aplicável]
-- **Estimativa da AWS:** https://calculator.aws/#/estimate?id=7d0c874d49c46e28e7a05c8d1e658c78747d185c
+- **Aplicação implantada (IP ou DNS):** http://54.81.198.105:5000
+- **Estimativa da AWS:** https://calculator.aws/#/estimate?id=f120c50d60e2adcf69d6d7a434820ba0599e6d03
 
 ---
 
