@@ -1,25 +1,29 @@
 services:
   app:
-    build: .
+    build:
+      context: .
+      args:
+        TZ: ${TZ}
+    env_file: .env
     ports:
       - "5000:5000"
     volumes:
       - .:/app
     environment:
-      - DB_HOST=db
-      - DB_NAME=togglemaster
-      - DB_USER=user
-      - DB_PASSWORD=password
-      - DB_PORT=5432
+      - DB_HOST=${DB_HOST}
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_PORT=${DB_PORT}
     depends_on:
       db:
         condition: service_healthy
   db:
     image: postgres:13
     environment:
-      - POSTGRES_USER=user
-      - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=togglemaster
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     healthcheck:

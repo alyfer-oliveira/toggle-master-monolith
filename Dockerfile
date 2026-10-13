@@ -5,6 +5,9 @@ ENV PYTHONUNBUFFERED 1
 
 WORKDIR /app
 
+ARG TZ
+ENV TZ=${TZ}
+
 COPY requirements.txt .
 
 RUN pip install --no-cache-dir -r requirements.txt
@@ -16,6 +19,12 @@ RUN chmod +x entrypoint.sh
 COPY app.py .
 
 RUN apt-get update && apt-get install -y postgresql-client
+RUN apt-get install -y \
+    locales \
+    tzdata \
+    && rm -rf /var/lib/apt/lists/*
+
+
 
 EXPOSE 5000
 
