@@ -17,7 +17,7 @@
 ### Links do projeto
 
 - **Repositório Base:** https://github.com/dougls/toggle-master-monolith
-- **Diagrama da arquitetura:** [inserir link]
+- **Diagrama da arquitetura:** https://viewer.diagrams.net/?tags=%7B%7D&lightbox=1&highlight=0000ff&edit=_blank&layers=1&nav=1&title=Tech-Challenge-Fase-01.drawio&dark=auto#Uhttps%3A%2F%2Fdrive.google.com%2Fuc%3Fid%3D1PnYk_q6molzVusnGNFs6qyXsSHuWc6hD%26export%3Ddownload
 - **Vídeo de demonstração (até 15 minutos):** [inserir link]
 - **Aplicação implantada (IP ou DNS):** http://54.81.198.105:5000
 - **Estimativa da AWS:** https://calculator.aws/#/estimate?id=f120c50d60e2adcf69d6d7a434820ba0599e6d03
