@@ -54,18 +54,19 @@ A avaliação abaixo considera a solução implementada pelo grupo durante o des
 
 | Nº | Fator | Avaliação | Análise, evidência e evolução recomendada |
 |---:|---|---|---|
-| 1 | **Base de código** | **Atende** | O projeto está versionado em GitHub: https://github.com/dougls/toggle-master-monolith. O grupo utilizou a branch `main`, cuja versão de referência corresponde à Pull Request nº 2, mergeada pelo usuário `dougls`, conforme descrito no modelo do projeto. Para comprovar a versão implantada, registrar também o commit utilizado e demonstrar que eventuais alterações feitas pelo grupo foram versionadas. **Evidência:** [inserir captura/link do commit ou histórico de implantação]. |
+| 1 | **Base de código** | **Atende** | O projeto está versionado em GitHub: https://github.com/dougls/toggle-master-monolith. O grupo utilizou a branch `main`, cuja versão de referência corresponde à Pull Request nº 2, mergeada pelo usuário `dougls`, conforme descrito no modelo do projeto. Para comprovar a versão implantada, registrar também o commit utilizado e demonstrar que eventuais alterações feitas pelo grupo foram versionadas. |
+
 | 2 | **Dependências** | **Atende** | As dependências Python são declaradas em `requirements.txt` e instaladas pelo `Dockerfile` com `pip install --no-cache-dir -r requirements.txt`. **Evidência:** `requirements.txt` e trecho correspondente do `Dockerfile`. Para maior reprodutibilidade, manter versões fixadas e atualizar dependências de forma controlada. |
-| 3 | **Configurações** | **Atende parcialmente** | No ambiente AWS, as credenciais são obtidas do AWS Secrets Manager e fornecidas ao ambiente de execução por um script do grupo. O procedimento evita inserir segredos no código e reduz sua exposição em comandos do terminal. Segundo a implementação descrita, as variáveis temporárias do host são removidas após o deploy. **Evidência:** [anexar trecho do script sem valores secretos e captura das configurações, com segredos ocultos]. Para produção, preferir injetar segredos diretamente no processo ou serviço de execução, limitar permissões por IAM e evitar persistir credenciais em arquivos ou histórico de shell. |
-| 4 | **Serviços de apoio** | **Atende** | O Amazon RDS é utilizado como banco de dados externo da aplicação, e o AWS Secrets Manager armazena/disponibiliza as credenciais necessárias. Esses recursos são configurados externamente à aplicação. **Evidência:** configuração da conexão ao endpoint do RDS e referência ao segredo, sempre ocultando usuário, senha e valores sensíveis. A VPC e o Elastic IP são componentes de infraestrutura/rede, não serviços de apoio consumidos pela lógica da aplicação. |
-| 5 | **Build, release e execução** | **Atende parcialmente** | A imagem da aplicação é construída a partir do código e das dependências definidos no projeto e executada em um container na EC2. O processo de obtenção das configurações e subida do container é feito por script. **Evidência:** `Dockerfile`, comandos/script utilizados e identificação da imagem implantada. Para produção, separar claramente build, release e execução, identificar cada release por tag/commit e manter um procedimento de rollback. |
-| 6 | **Processos** | **Atende parcialmente** | A API é executada como processo/container e usa o RDS para persistência dos dados. Isso evita que os dados principais dependam do armazenamento efêmero do processo da aplicação. **Evidência:** configuração de execução do container e demonstração de persistência no RDS. Confirmar que sessões, arquivos enviados ou outros estados não essenciais não ficam exclusivamente na memória ou no disco local da EC2. |
-| 7 | **Vínculo de porta** | **Atende parcialmente** | A aplicação disponibiliza a API por uma porta e o acesso externo é controlado pela configuração de rede da EC2. **Evidência:** porta configurada no container/aplicação e regra correspondente no Security Group. Registrar a porta efetivamente usada e, para produção, considerar TLS por meio de proxy ou balanceador e não expor portas internas desnecessárias. |
-| 8 | **Concorrência** | **Atende parcialmente** | A execução em container permite iniciar processos da aplicação, mas a implantação da Fase 1 utiliza uma única instância EC2 e não demonstra escalabilidade horizontal. **Evidência:** configuração atual da instância e do processo. Para produção, avaliar múltiplas instâncias/containers, balanceamento de carga, limites de conexão do RDS e escalabilidade conforme a demanda. |
-| 9 | **Descartabilidade** | **Atende parcialmente** | O container pode ser reiniciado sem que os dados persistidos no RDS sejam perdidos. A recuperação após falhas e o comportamento de encerramento devem ser validados. **Evidência:** [inserir resultado de reinício do container e verificação dos dados]. Para produção, configurar política de reinício, verificações de saúde, tratamento adequado de sinais de encerramento e tempo de inicialização previsível. |
-| 10 | **Dev/prod semelhantes** | **Atende parcialmente** | A aplicação foi executada localmente e implantada na AWS, mas os ambientes diferem em infraestrutura e serviços gerenciados. **Evidência:** registrar como cada ambiente configura variáveis, dependências e banco de dados. Para reduzir diferenças, padronizar versões, automatizar a configuração e usar serviços equivalentes nos testes, sem compartilhar credenciais ou dados de produção. |
-| 11 | **Logs** | **Atende parcialmente** | A aplicação pode emitir logs durante sua execução no container. O local de coleta e retenção dos logs da implantação deve ser registrado. **Evidência:** [inserir captura de logs do container/EC2 ou configuração do CloudWatch, se utilizada]. Para produção, direcionar logs para uma saída centralizada, definir retenção e garantir que credenciais e dados sensíveis não sejam registrados. |
-| 12 | **Processos administrativos** | **Precisa de evolução** | O projeto não documenta, no material disponível, processos administrativos pontuais separados da execução da API, como migrações ou rotinas operacionais. **Evidência:** [descrever se alguma tarefa administrativa foi executada e como]. Para produção, documentar e automatizar essas tarefas para que sejam executadas sob demanda, com a mesma versão e configurações da aplicação, sem depender de alterações manuais não rastreáveis na EC2. |
+| 3 | **Configurações** | **Atende parcialmente** | No ambiente AWS, as credenciais são obtidas do AWS Secrets Manager e fornecidas ao ambiente de execução por um script do grupo. O procedimento evita inserir segredos no código e reduz sua exposição em comandos do terminal. Segundo a implementação descrita, as variáveis temporárias do host são removidas após o deploy. Para produção, preferir injetar segredos diretamente no processo ou serviço de execução, limitar permissões por IAM e evitar persistir credenciais em arquivos ou histórico de shell. |
+| 4 | **Serviços de apoio** | **Atende** | O Amazon RDS é utilizado como banco de dados externo da aplicação, e o AWS Secrets Manager armazena/disponibiliza as credenciais necessárias. Esses recursos são configurados externamente à aplicação. A VPC e o Elastic IP são componentes de infraestrutura/rede, não serviços de apoio consumidos pela lógica da aplicação. |
+| 5 | **Build, release e execução** | **Atende parcialmente** | A imagem da aplicação é construída a partir do código e das dependências definidos no projeto e executada em um container na EC2. O processo de obtenção das configurações e subida do container é feito por script. Para produção, separar claramente build, release e execução, identificar cada release por tag/commit e manter um procedimento de rollback. |
+| 6 | **Processos** | **Atende parcialmente** | A API é executada como processo/container e usa o RDS para persistência dos dados. Isso evita que os dados principais dependam do armazenamento efêmero do processo da aplicação. Confirmar que sessões, arquivos enviados ou outros estados não essenciais não ficam exclusivamente na memória ou no disco local da EC2. |
+| 7 | **Vínculo de porta** | **Atende parcialmente** | A aplicação disponibiliza a API por uma porta e o acesso externo é controlado pela configuração de rede da EC2. Registrar a porta efetivamente usada e, para produção, considerar TLS por meio de proxy ou balanceador e não expor portas internas desnecessárias. |
+| 8 | **Concorrência** | **Atende parcialmente** | A execução em container permite iniciar processos da aplicação, mas a implantação da Fase 1 utiliza uma única instância EC2 e não demonstra escalabilidade horizontal. Para produção, avaliar múltiplas instâncias/containers, balanceamento de carga, limites de conexão do RDS e escalabilidade conforme a demanda. |
+| 9 | **Descartabilidade** | **Atende parcialmente** | O container pode ser reiniciado sem que os dados persistidos no RDS sejam perdidos. A recuperação após falhas e o comportamento de encerramento devem ser validados. Para produção, configurar política de reinício, verificações de saúde, tratamento adequado de sinais de encerramento e tempo de inicialização previsível. |
+| 10 | **Dev/prod semelhantes** | **Atende parcialmente** | A aplicação foi executada localmente e implantada na AWS, mas os ambientes diferem em infraestrutura e serviços gerenciados. Para reduzir diferenças, padronizar versões, automatizar a configuração e usar serviços equivalentes nos testes, sem compartilhar credenciais ou dados de produção. |
+| 11 | **Logs** | **Atende parcialmente** | A aplicação pode emitir logs durante sua execução no container. O local de coleta e retenção dos logs da implantação deve ser registrado. Para produção, direcionar logs para uma saída centralizada, definir retenção e garantir que credenciais e dados sensíveis não sejam registrados. |
+| 12 | **Processos administrativos** | **Precisa de evolução** | O projeto não documenta, no material disponível, processos administrativos pontuais separados da execução da API, como migrações ou rotinas operacionais. Para produção, documentar e automatizar essas tarefas para que sejam executadas sob demanda, com a mesma versão e configurações da aplicação, sem depender de alterações manuais não rastreáveis na EC2. |
 
 ## 4. Pontos observados no código
 
@@ -132,8 +133,6 @@ O código-fonte e seus componentes estão disponíveis no repositório: https://
 
 ### 6.3 Como executar e avaliar
 
-> Os comandos abaixo são um roteiro. Ajustem nomes de arquivos, portas e variáveis aos valores reais do projeto. Não coloquem credenciais reais neste documento.
-
 **Pré-requisitos:** Git, Docker e acesso ao ambiente AWS; Python/pip caso a execução local não seja feita via container.
 
 **Execução local (preencher com o procedimento validado pelo grupo):**
@@ -152,7 +151,7 @@ O código-fonte e seus componentes estão disponíveis no repositório: https://
 
 **Execução na AWS:** [documentar os comandos ou script utilizados, removendo valores de credenciais e dados sensíveis].
 
-**Endpoint público e porta:** [preencher]  
+**Endpoint público e porta:** http://54.81.198.105:5000
 **Exemplos de requisições para CRUD:** [inserir endpoints/métodos e exemplos sem dados sensíveis]
 
 ## 7. Validação e resultados
@@ -174,11 +173,10 @@ A validação deve demonstrar que a API responde publicamente, consegue se conec
 
 A estimativa deve ser produzida na Calculadora de Preços da AWS e corresponder à região, às dimensões e ao período considerados. Incluam também o print solicitado no enunciado.
 
-- **Região AWS:** [preencher]
-- **Premissas de uso:** [horas de execução, armazenamento, tráfego e demais premissas]
-- **Custo mensal estimado:** [preencher moeda e valor]
-- **Link da estimativa ou arquivo/captura:** [inserir]
-- **Observações sobre itens não incluídos:** [por exemplo, tráfego variável, impostos ou serviços adicionais, se aplicável]
+- **Região AWS:** us-east-1
+- **Custo mensal estimado:** 30,60 USD
+- **Link da estimativa ou arquivo/captura:** https://calculator.aws/#/estimate?id=f120c50d60e2adcf69d6d7a434820ba0599e6d03
+- **Observações sobre itens não incluídos:** Não incluído valores relacionados à HA
 
 ### 7.2 Limitações conhecidas
 
