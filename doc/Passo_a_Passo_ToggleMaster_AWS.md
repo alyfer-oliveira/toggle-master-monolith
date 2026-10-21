@@ -239,6 +239,7 @@ set +x
 REGION="us-east-1"
 API_SECRET_ID="idcredencial1"
 DB_SECRET_ID="idcredencial2"
+CAMINHO_GIT="/path/to/"
 
 API_JSON="$(aws secretsmanager get-secret-value \
   --secret-id "$API_SECRET_ID" \
@@ -261,7 +262,7 @@ export DB_PASSWORD="$(jq -r '.password' <<< "$DB_JSON")"
 
 unset API_JSON DB_JSON
 
-cd /home/ec2-user/togglemaster-web
+cd $CAMINHO_GIT
 
 docker compose up -d --build
 
