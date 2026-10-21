@@ -167,7 +167,7 @@ def delete_flag(name):
         if 'conn' in locals() and not conn.closed:
             conn.close()
 
-    return jsonify({"message": f"Flag '{id}' removida"}), 200
+    return jsonify({"message": f"Flag '{name}' removida"}), 200
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
