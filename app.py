@@ -145,7 +145,7 @@ def delete_flag(name):
         conn = get_db_connection()
         cur = conn.cursor()
 
-        cur.execute("DELETE FROM flags WHERE name = %s", (name))
+        cur.execute("DELETE FROM flags WHERE name = %s", (name,))
 
         if cur.rowcount == 0:
             conn.rollback()
