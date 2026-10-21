@@ -139,13 +139,13 @@ def update_flag(name):
     
     return jsonify({"message": f"Flag '{name}' atualizada"}), 200
 
-@app.route('/flags/<int:id>', methods=['DELETE'])
-def delete_flag(id):
+@app.route('/flags/<string:name>', methods=['DELETE'])
+def delete_flag(name):
     try:
         conn = get_db_connection()
         cur = conn.cursor()
 
-        cur.execute("DELETE FROM flags WHERE id = %s", (id,))
+        cur.execute("DELETE FROM flags WHERE name = %s", (name))
 
         if cur.rowcount == 0:
             conn.rollback()

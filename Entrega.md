@@ -97,7 +97,7 @@ A solução utiliza uma VPC com sub-redes públicas e privadas. A instância EC2
 | Amazon RDS ([PostgreSQL/MySQL — confirmar]) | Persistência dos dados | Banco gerenciado acessado pela aplicação. |
 | AWS Secrets Manager | Gestão das credenciais | Mantém as credenciais fora do código-fonte. |
 | Amazon VPC, sub-redes e Security Groups | Segmentação e controle de tráfego | Define a comunicação entre EC2, RDS e usuários. |
-| Elastic IP ([confirmar se utilizado]) | Endereço IPv4 público estável para a EC2, se aplicável | Facilita o acesso por endereço fixo. |
+| Elastic IP | Endereço IPv4 público estável para a EC2, se aplicável | Facilita o acesso por endereço fixo. |
 
 ### 5.3 Segurança, privacidade e dados
 
@@ -107,6 +107,12 @@ A solução utiliza uma VPC com sub-redes públicas e privadas. A instância EC2
 - A comunicação com o banco deve usar a porta e o protocolo esperados; quando configurado, validar o uso de TLS.
 - A solução é um MVP acadêmico. Autenticação/autorização da API, TLS público, cópias de segurança, monitoramento, gestão de patches e alta disponibilidade devem ser avaliados conforme os requisitos de produção.
 - **Dados tratados pela aplicação e classificação:** [descrever; não afirmar tratamento de dados pessoais sem verificar].
+
+### 5.4 Correções realizadas no código
+
+- O método **DELETE** é solicitado no escopo do trabalho. Porém, a aplicação não possui este método configurado e habilitado. O grupo incluiu este método diretamente no código.
+- Não há uma definição de fuso horário padrão no código, o que pode ocasionar divergências de horários do container. Para isto, foi adicionado uma lógica de instalação de componentes para definição e ajuste do timezone para "America/Sao_Paulo" vinda de dentro do container. 
+- 
 
 ## 6. Desenvolvimento e implementação
 
@@ -149,7 +155,7 @@ O código-fonte e seus componentes estão disponíveis no repositório: https://
  [COMANDO_DE_EXECUCAO]
 ```
 
-**Execução na AWS:** [documentar os comandos ou script utilizados, removendo valores de credenciais e dados sensíveis].
+**Execução na AWS:** [Passo a Passo de Execução] (doc/Passo_a_Passo_ToggleMaster_AWS.md)
 
 **Endpoint público e porta:** http://54.81.198.105:5000
 **Exemplos de requisições para CRUD:** [inserir endpoints/métodos e exemplos sem dados sensíveis]
@@ -160,8 +166,8 @@ A validação deve demonstrar que a API responde publicamente, consegue se conec
 
 | Cenário | Resultado esperado | Resultado obtido/evidência | Status |
 |---|---|---|---|
-| Aplicação executada localmente | API inicia e responde às requisições | [descrever e anexar evidência] | [Aprovado/Pendente] |
-| Acesso à aplicação na EC2 | Endpoint público responde pela porta configurada | [inserir URL/IP, horário e evidência] | [Aprovado/Pendente] |
+| Aplicação executada localmente | API inicia e responde às requisições | [descrever e anexar evidência] | [Aprovado] |
+| Acesso à aplicação na EC2 | Endpoint público responde pela porta configurada | [inserir URL/IP, horário e evidência] | [Aprovado] |
 | Criação de *feature flag* | Registro é criado pela API e persistido no RDS | [descrever e anexar evidência] | [Aprovado/Pendente] |
 | Consulta de *feature flag* | API retorna o registro existente | [descrever e anexar evidência] | [Aprovado/Pendente] |
 | Atualização de *feature flag* | Alteração é persistida e retornada | [descrever e anexar evidência] | [Aprovado/Pendente] |
@@ -219,9 +225,6 @@ A conclusão final deve refletir os resultados efetivamente demonstrados pelo gr
 
 - **FIAP.** Tech Challenge — Fase 1, Pós-Tech DevOps (DCLT). Material fornecido para a atividade.
 - **GitHub.** `toggle-master-monolith`. Disponível em: https://github.com/dougls/toggle-master-monolith. Acesso em: [preencher].
-- **AWS.** AWS Well-Architected / documentação dos serviços utilizados: [inserir links oficiais consultados e data de acesso].
-- **The Twelve-Factor App.** Disponível em: https://12factor.net/. Acesso em: [preencher].
-- [Adicionar outras fontes realmente utilizadas.]
 
 ## Apêndices e evidências
 
