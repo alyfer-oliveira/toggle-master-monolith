@@ -16,8 +16,8 @@
 
 ### Links do projeto
 
-- **Repositório Base:** https://github.com/dougls/toggle-master-monolith
-- **Diagrama da arquitetura:** https://viewer.diagrams.net/?tags=%7B%7D&lightbox=1&highlight=0000ff&edit=_blank&layers=1&nav=1&title=Tech-Challenge-Fase-01.drawio&dark=auto#Uhttps%3A%2F%2Fdrive.google.com%2Fuc%3Fid%3D1PnYk_q6molzVusnGNFs6qyXsSHuWc6hD%26export%3Ddownload
+- **Repositório do grupo:** https://github.com/alyfer-oliveira/toggle-master-monolith.git 
+- **Diagrama da arquitetura:** https://viewer.diagrams.net/?tags=%7B%7D&lightbox=1&target=blank&highlight=0000ff&edit=_blank&layers=1&nav=1&title=Diagrama%20sem%20nome.drawio&dark=auto#Uhttps%3A%2F%2Fdrive.google.com%2Fuc%3Fid%3D16jy_sp0eg1MBEux1nwCFF2pAjn8d5WwX%26export%3Ddownload
 - **Vídeo de demonstração (até 15 minutos):** [inserir link]
 - **Aplicação implantada (IP ou DNS):** http://54.81.198.105:5000
 - **Estimativa da AWS:** https://calculator.aws/#/estimate?id=f120c50d60e2adcf69d6d7a434820ba0599e6d03
@@ -56,19 +56,23 @@ A avaliação abaixo considera a solução implementada pelo grupo durante o des
 |---:|---|---|---|
 | 1 | **Base de código** | **Atende** | O projeto está versionado em GitHub: https://github.com/dougls/toggle-master-monolith. O grupo utilizou a branch `main`, cuja versão de referência corresponde à Pull Request nº 2, mergeada pelo usuário `dougls`, conforme descrito no modelo do projeto. Para comprovar a versão implantada, registrar também o commit utilizado e demonstrar que eventuais alterações feitas pelo grupo foram versionadas. |
 
-| 2 | **Dependências** | **Atende** | As dependências Python são declaradas em `requirements.txt` e instaladas pelo `Dockerfile` com `pip install --no-cache-dir -r requirements.txt`. **Evidência:** `requirements.txt` e trecho correspondente do `Dockerfile`. Para maior reprodutibilidade, manter versões fixadas e atualizar dependências de forma controlada. |
-| 3 | **Configurações** | **Atende parcialmente** | No ambiente AWS, as credenciais são obtidas do AWS Secrets Manager e fornecidas ao ambiente de execução por um script do grupo. O procedimento evita inserir segredos no código e reduz sua exposição em comandos do terminal. Segundo a implementação descrita, as variáveis temporárias do host são removidas após o deploy. Para produção, preferir injetar segredos diretamente no processo ou serviço de execução, limitar permissões por IAM e evitar persistir credenciais em arquivos ou histórico de shell. |
+| 2 | **Dependências** | **Atende** | As dependências Python são declaradas em `requirements.txt` e instaladas pelo `Dockerfile` com `pip install --no-cache-dir -r requirements.txt`. Para maior reprodutibilidade, manter versões fixadas e atualizar dependências de forma controlada. |
+| 3 | **Configurações** | **Atende parcialmente** | No ambiente AWS, as credenciais são obtidas do AWS Secrets Manager e fornecidas ao ambiente de execução. O procedimento evita inserir segredos no código e reduz sua exposição em comandos do terminal. As variáveis temporárias do host utilizadas são removidas após o deploy. Para produção, preferir injetar segredos diretamente no processo ou serviço de execução, limitar permissões por IAM e evitar persistir credenciais em arquivos ou histórico de shell. |
 | 4 | **Serviços de apoio** | **Atende** | O Amazon RDS é utilizado como banco de dados externo da aplicação, e o AWS Secrets Manager armazena/disponibiliza as credenciais necessárias. Esses recursos são configurados externamente à aplicação. A VPC e o Elastic IP são componentes de infraestrutura/rede, não serviços de apoio consumidos pela lógica da aplicação. |
 | 5 | **Build, release e execução** | **Atende parcialmente** | A imagem da aplicação é construída a partir do código e das dependências definidos no projeto e executada em um container na EC2. O processo de obtenção das configurações e subida do container é feito por script. Para produção, separar claramente build, release e execução, identificar cada release por tag/commit e manter um procedimento de rollback. |
 | 6 | **Processos** | **Atende parcialmente** | A API é executada como processo/container e usa o RDS para persistência dos dados. Isso evita que os dados principais dependam do armazenamento efêmero do processo da aplicação. Confirmar que sessões, arquivos enviados ou outros estados não essenciais não ficam exclusivamente na memória ou no disco local da EC2. |
 | 7 | **Vínculo de porta** | **Atende parcialmente** | A aplicação disponibiliza a API por uma porta e o acesso externo é controlado pela configuração de rede da EC2. Registrar a porta efetivamente usada e, para produção, considerar TLS por meio de proxy ou balanceador e não expor portas internas desnecessárias. |
-| 8 | **Concorrência** | **Atende parcialmente** | A execução em container permite iniciar processos da aplicação, mas a implantação da Fase 1 utiliza uma única instância EC2 e não demonstra escalabilidade horizontal. Para produção, avaliar múltiplas instâncias/containers, balanceamento de carga, limites de conexão do RDS e escalabilidade conforme a demanda. |
+| 8 | **Concorrência** | **Atende parcialmente** | A execução em container permite iniciar processos da aplicação, mas a implantação utiliza uma única instância EC2. Para produção, avaliar múltiplas instâncias/containers, balanceamento de carga, limites de conexão do RDS e escalabilidade conforme a demanda. |
 | 9 | **Descartabilidade** | **Atende parcialmente** | O container pode ser reiniciado sem que os dados persistidos no RDS sejam perdidos. A recuperação após falhas e o comportamento de encerramento devem ser validados. Para produção, configurar política de reinício, verificações de saúde, tratamento adequado de sinais de encerramento e tempo de inicialização previsível. |
 | 10 | **Dev/prod semelhantes** | **Atende parcialmente** | A aplicação foi executada localmente e implantada na AWS, mas os ambientes diferem em infraestrutura e serviços gerenciados. Para reduzir diferenças, padronizar versões, automatizar a configuração e usar serviços equivalentes nos testes, sem compartilhar credenciais ou dados de produção. |
 | 11 | **Logs** | **Atende parcialmente** | A aplicação pode emitir logs durante sua execução no container. O local de coleta e retenção dos logs da implantação deve ser registrado. Para produção, direcionar logs para uma saída centralizada, definir retenção e garantir que credenciais e dados sensíveis não sejam registrados. |
-| 12 | **Processos administrativos** | **Precisa de evolução** | O projeto não documenta, no material disponível, processos administrativos pontuais separados da execução da API, como migrações ou rotinas operacionais. Para produção, documentar e automatizar essas tarefas para que sejam executadas sob demanda, com a mesma versão e configurações da aplicação, sem depender de alterações manuais não rastreáveis na EC2. |
+| 12 | **Processos administrativos** | **Atende Parcialmente** | O projeto não documenta, no material disponível, processos administrativos pontuais separados da execução da API, como migrações ou rotinas operacionais. Além disso, a aplicação inclui, no mesmo código da API, o comando manual init-db, registrado na CLI do Flask, para inicializar o banco de dados. Embora seja executado separadamente do processo que atende às requisições, esse comando não oferece, por si só, controle versionado da evolução do esquema. Para produção, documentar e automatizar essas tarefas para que sejam executadas sob demanda, com a mesma versão e configurações da aplicação, sem depender de alterações manuais não rastreáveis na EC2. Para o init-db, recomenda-se adotar migrações de banco de dados, executadas como processos administrativos pontuais e rastreáveis, para aplicar alterações de forma controlada e compatível com cada versão da aplicação. |
 
 ## 4. Pontos observados no código
+
+- O método **DELETE** é solicitado no escopo do trabalho. Porém, a aplicação não possui este método configurado e habilitado. O grupo incluiu este método diretamente no código.
+- Não há uma definição de fuso horário padrão no código, o que pode ocasionar divergências de horários do container. Para isto, foi adicionado uma lógica de instalação de componentes para definição e ajuste do timezone para "America/Sao_Paulo" vinda de dentro do container. 
+- A API está acessível publicamente e não possui mecanismos de autenticação, o que permite que qualquer usuário alcance seus endpoints. Para um ambiente de produção, é necessário implementar controles de autenticação e autorização para restringir o acesso às operações.
 
 ## 5. Arquitetura e tecnologias
 
@@ -84,8 +88,8 @@ A solução utiliza uma VPC com sub-redes públicas e privadas. A instância EC2
 4. A aplicação conecta-se ao RDS por rede privada para consultar ou persistir os dados;
 5. As credenciais são obtidas do AWS Secrets Manager conforme o procedimento configurado pelo grupo.
 
-**Diagrama da arquitetura:** [inserir link para Miro, diagrams.net ou outro recurso]  
-**Imagem do diagrama:** [inserir ou anexar figura]
+**Diagrama da arquitetura:** https://viewer.diagrams.net/?tags=%7B%7D&lightbox=1&target=blank&highlight=0000ff&edit=_blank&layers=1&nav=1&title=Diagrama%20sem%20nome.drawio&dark=auto#Uhttps%3A%2F%2Fdrive.google.com%2Fuc%3Fid%3D16jy_sp0eg1MBEux1nwCFF2pAjn8d5WwX%26export%3Ddownload 
+**Imagem do diagrama:** ![Arquitetura da Aplicação](doc/image/Arquitetura.png)
 
 ### 5.2 Tecnologias e componentes
 
@@ -94,25 +98,10 @@ A solução utiliza uma VPC com sub-redes públicas e privadas. A instância EC2
 | ToggleMaster (Python) | API de gerenciamento de *feature flags* | Aplicação fornecida para o desafio e avaliada pelo grupo. |
 | Docker | Empacotamento e execução da aplicação | Mantém aplicação e dependências em uma unidade implantável. |
 | Amazon EC2 | Execução da aplicação na AWS | Hospeda o container da API. |
-| Amazon RDS ([PostgreSQL/MySQL — confirmar]) | Persistência dos dados | Banco gerenciado acessado pela aplicação. |
+| Amazon RDS (PostgreSQL) | Persistência dos dados | Banco gerenciado acessado pela aplicação. |
 | AWS Secrets Manager | Gestão das credenciais | Mantém as credenciais fora do código-fonte. |
 | Amazon VPC, sub-redes e Security Groups | Segmentação e controle de tráfego | Define a comunicação entre EC2, RDS e usuários. |
-| Elastic IP | Endereço IPv4 público estável para a EC2, se aplicável | Facilita o acesso por endereço fixo. |
-
-### 5.3 Segurança, privacidade e dados
-
-- As credenciais do banco são armazenadas no AWS Secrets Manager e não devem ser incluídas no repositório ou em evidências sem mascaramento.
-- O RDS deve permanecer em sub-redes privadas, sem acesso público, e aceitar conexões somente do Security Group da EC2.
-- O Security Group da EC2 deve liberar HTTP/HTTPS conforme a necessidade da aplicação e restringir SSH ao endereço IP administrativo autorizado.
-- A comunicação com o banco deve usar a porta e o protocolo esperados; quando configurado, validar o uso de TLS.
-- A solução é um MVP acadêmico. Autenticação/autorização da API, TLS público, cópias de segurança, monitoramento, gestão de patches e alta disponibilidade devem ser avaliados conforme os requisitos de produção.
-- **Dados tratados pela aplicação e classificação:** [descrever; não afirmar tratamento de dados pessoais sem verificar].
-
-### 5.4 Correções realizadas no código
-
-- O método **DELETE** é solicitado no escopo do trabalho. Porém, a aplicação não possui este método configurado e habilitado. O grupo incluiu este método diretamente no código.
-- Não há uma definição de fuso horário padrão no código, o que pode ocasionar divergências de horários do container. Para isto, foi adicionado uma lógica de instalação de componentes para definição e ajuste do timezone para "America/Sao_Paulo" vinda de dentro do container. 
-- 
+| Elastic IP | Endereço IPv4 público estável para a EC2 | Facilita o acesso por endereço fixo. |
 
 ## 6. Desenvolvimento e implementação
 
@@ -127,79 +116,74 @@ A solução utiliza uma VPC com sub-redes públicas e privadas. A instância EC2
 7. Configuração das credenciais e da conexão da aplicação ao RDS;
 8. Inicialização da aplicação e validação de acesso público e persistência.
 
-**Etapas efetivamente concluídas e diferenças em relação à lista:** [preencher com o que o grupo realmente realizou].
+### 6.2 Decisões adotadas
 
-### 6.2 Estrutura do projeto
-
-O código-fonte e seus componentes estão disponíveis no repositório: https://github.com/dougls/toggle-master-monolith.
-
-- `requirements.txt`: dependências Python;
-- `Dockerfile`: instruções para construir a imagem e instalar dependências;
-- `[outros arquivos/diretórios principais]`: [descrever após conferir a estrutura usada].
+- O grupo decidiu manter a arquitetura monolítica do ToggleMaster, adequada ao escopo de um MVP e ao objetivo de disponibilizar a aplicação na AWS. A API foi executada em um container Docker hospedado em uma instância EC2, enquanto os dados são armazenados em um Amazon RDS PostgreSQL. Essa separação mantém a aplicação e o banco em componentes distintos, sem exigir a divisão da API em serviços independentes.
+- A infraestrutura foi organizada em uma VPC com sub-redes públicas e privadas. A EC2 foi posicionada na sub-rede pública para permitir o acesso à API, e o RDS foi colocado em uma sub-rede privada, com acesso de rede controlado por Security Groups. Também foi utilizado um Elastic IP para manter um endereço público estável para a instância.
+- Para gerenciar as credenciais, o grupo adotou o AWS Secrets Manager e criou um script para obtê-las durante a implantação, evitando armazená-las diretamente no código-fonte. A aplicação foi construída e executada com Docker, e as dependências foram instaladas conforme definidas no projeto.
+- Durante a análise, o grupo também identificou pontos que precisam evoluir antes de uma utilização em produção: a API está publicamente acessível sem autenticação, o comando init-db inicializa o banco manualmente, e a implantação ainda depende de procedimentos que podem ser mais automatizados e rastreáveis. Como próximos ajustes, recomenda-se implementar autenticação e autorização, adotar migrações versionadas para mudanças no esquema do banco e fortalecer a automação de deploy e a observabilidade.
+- Como o método DELETE era solicitado no escopo do desafio, mas não estava implementado na aplicação original, o grupo decidiu adicioná-lo à API para permitir a exclusão de feature flags e completar as operações CRUD previstas.
+- Também foi definido o fuso horário do container como `America/Sao_Paulo`, evitando divergências entre os horários registrados pela aplicação e o horário local utilizado pelo grupo.
 
 ### 6.3 Como executar e avaliar
 
 **Pré-requisitos:** Git, Docker e acesso ao ambiente AWS; Python/pip caso a execução local não seja feita via container.
 
-**Execução local (preencher com o procedimento validado pelo grupo):**
+**Execução local:**
 
 ```bash
-# Exemplo: obter o projeto
+# Obter o projeto
  git clone https://github.com/dougls/toggle-master-monolith.git
  cd toggle-master-monolith
 
-# Instalar dependências, se aplicável
- pip install -r requirements.txt
+# Criar arquivo .env a partir do .env.example contendo as variáveis de ambiente do projeto
 
-# Iniciar conforme o comando definido pela aplicação
- [COMANDO_DE_EXECUCAO]
+# Subir Projeto com o comando abaixo:
+ docker compose -f docker-compose-local.yaml up -d --build
 ```
 
-**Execução na AWS:** [Passo a Passo de Execução] (doc/Passo_a_Passo_ToggleMaster_AWS.md)
+**Execução na AWS:** [Passo a Passo de Execução] (doc/md/Passo_a_Passo_ToggleMaster_AWS.md)
 
 **Endpoint público e porta:** http://54.81.198.105:5000
-**Exemplos de requisições para CRUD:** [inserir endpoints/métodos e exemplos sem dados sensíveis]
+**Exemplos de requisições para CRUD:** 
 
-## 7. Validação e resultados
+### Exemplos de requisições para CRUD
 
-A validação deve demonstrar que a API responde publicamente, consegue se conectar ao RDS e mantém os dados após a operação. Preencham os resultados com evidências reais da execução.
+A tabela abaixo apresenta os endpoints utilizados para testar as operações de criação, consulta, atualização e exclusão de *feature flags*. Substitua os caminhos e exemplos pelos endpoints reais da aplicação.
 
-| Cenário | Resultado esperado | Resultado obtido/evidência | Status |
+| Operação | Método HTTP | Endpoint | Resultado esperado |
 |---|---|---|---|
-| Aplicação executada localmente | API inicia e responde às requisições | [descrever e anexar evidência] | [Aprovado] |
-| Acesso à aplicação na EC2 | Endpoint público responde pela porta configurada | [inserir URL/IP, horário e evidência] | [Aprovado] |
-| Criação de *feature flag* | Registro é criado pela API e persistido no RDS | [descrever e anexar evidência] | [Aprovado/Pendente] |
-| Consulta de *feature flag* | API retorna o registro existente | [descrever e anexar evidência] | [Aprovado/Pendente] |
-| Atualização de *feature flag* | Alteração é persistida e retornada | [descrever e anexar evidência] | [Aprovado/Pendente] |
-| Exclusão de *feature flag* | Registro é removido conforme comportamento da API | [descrever e anexar evidência] | [Aprovado/Pendente] |
-| Isolamento do RDS | Banco aceita conexão da EC2 e não fica aberto ao público | [inserir regra do Security Group e evidência] | [Aprovado/Pendente] |
-| Gestão das credenciais | Credenciais vêm do Secrets Manager sem serem exibidas | [inserir evidência mascarada] | [Aprovado/Pendente] |
+| Obter status health | `GET` | `/health` | Obtém status da aplicação |
+| Criar uma *feature flag* | `POST` | `/feature-flags` | Cria uma nova *feature flag*. |
+| Consultar *feature flags* | `GET` | `/feature-flags` | Retorna as *feature flags* cadastradas. |
+| Atualizar uma *feature flag* | `PUT` | `/feature-flags/{name}` | Atualiza a *feature flag* identificada pelo ID. |
+| Excluir uma *feature flag* | `DELETE` | `/feature-flags/{name}` | Exclui a *feature flag* identificada pelo ID. |
 
-### 7.1 Estimativa de custos AWS
+`GET - /health`
+![Requisição de Health](doc/image/CRUD-REQ-HEALTH.png)
 
-A estimativa deve ser produzida na Calculadora de Preços da AWS e corresponder à região, às dimensões e ao período considerados. Incluam também o print solicitado no enunciado.
+`POST - /feature-flags`
+![Requisição de Create](doc/image/CRUD-REQ-CREATE.png)
 
-- **Região AWS:** us-east-1
-- **Custo mensal estimado:** 30,60 USD
-- **Link da estimativa ou arquivo/captura:** https://calculator.aws/#/estimate?id=f120c50d60e2adcf69d6d7a434820ba0599e6d03
-- **Observações sobre itens não incluídos:** Não incluído valores relacionados à HA
+`GET - /feature-flags`
+![Requisição de Consulta](doc/image/CRUD-REQ-GET-FLAG.png)
 
-### 7.2 Limitações conhecidas
+`GET - /feature-flags/{name}`
+![Requisição de Consulta de status](doc/image/CRUD-REQ-GET-STATUS.png)
 
-- A solução desta fase é um MVP monolítico executado em uma instância EC2;
-- A alta disponibilidade e a escalabilidade automática não estão demonstradas, salvo se configuradas pelo grupo;
-- [Registrar limitações de autenticação, observabilidade, backup, TLS, automação ou testes que realmente se aplicarem];
-- [Registrar cenários não validados].
+`PUT - /feature-flags/{name}`
+![Requisição de Update de status](doc/image/CRUD-REQ-UPDATE-STATUS.png)
 
-## 8. Gestão do trabalho em equipe
+`DELETE - /feature-flags/{name}`
+![Requisição de Delete das flags](doc/image/CRUD-REQ-DELETE.png)
 
-O grupo é composto por cinco integrantes. A equipe utilizou o repositório GitHub para compartilhar o código do projeto. Registrem também as ferramentas de comunicação e acompanhamento usadas durante a atividade.
+## 7. Gestão do trabalho em equipe
 
-- **Repositório e controle de versão:** GitHub — https://github.com/dougls/toggle-master-monolith
-- **Comunicação:** [preencher]
-- **Acompanhamento das tarefas:** [preencher]
+O grupo é composto por cinco integrantes. A equipe utilizou o repositório GitHub para compartilhar o código do projeto.
 
-### 8.1 Contribuições
+- **Repositório e controle de versão:** GitHub — https://github.com/alyfer-oliveira/toggle-master-monolith.git (Branch: release/TCL01)
+
+### 7.1 Contribuições
 
 | Integrante | Contribuições realizadas |
 |---|---|
@@ -209,7 +193,7 @@ O grupo é composto por cinco integrantes. A equipe utilizou o repositório GitH
 | João Guilherme Schneider da Silva | [preencher responsabilidades e entregas] |
 | Luciano Luan da Silva Alves | [preencher responsabilidades e entregas] |
 
-### 8.2 Desafios e aprendizados
+### 7.2 Desafios e aprendizados
 
 - **Desafio encontrado:** [descrever problema real]
 - **Decisão ou solução adotada:** [descrever o que o grupo fez]
@@ -224,7 +208,7 @@ A conclusão final deve refletir os resultados efetivamente demonstrados pelo gr
 ## Referências
 
 - **FIAP.** Tech Challenge — Fase 1, Pós-Tech DevOps (DCLT). Material fornecido para a atividade.
-- **GitHub.** `toggle-master-monolith`. Disponível em: https://github.com/dougls/toggle-master-monolith. Acesso em: [preencher].
+- **GitHub.** `toggle-master-monolith`. Disponível em: https://github.com/dougls/toggle-master-monolith. Acesso em: 14/10/2026.
 
 ## Apêndices e evidências
 

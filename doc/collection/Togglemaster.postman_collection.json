@@ -1,0 +1,149 @@
+{
+  "info": {
+    "_postman_id": "8398fc51-b46a-4aeb-9b96-ebe8a087e79e",
+    "name": "Togglemaster",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "47481305",
+    "_collection_link": "https://go.postman.co/collection/47481305-8398fc51-b46a-4aeb-9b96-ebe8a087e79e?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "HEALTH",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{api_url}}/health",
+          "host": [
+            "{{api_url}}"
+          ],
+          "path": [
+            "health"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "GET FLAGS",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{api_url}}/flags",
+          "host": [
+            "{{api_url}}"
+          ],
+          "path": [
+            "flags"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "CREATE FLAGS",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"name\": \"new-feature\", \r\n    \"is_enabled\": true\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{api_url}}/flags",
+          "host": [
+            "{{api_url}}"
+          ],
+          "path": [
+            "flags"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "OBTEM STATUS",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{api_url}}/flags/new-feature",
+          "host": [
+            "{{api_url}}"
+          ],
+          "path": [
+            "flags",
+            "new-feature"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "ATUALIZA STATUS",
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"is_enabled\": false\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{api_url}}/flags/new-feature",
+          "host": [
+            "{{api_url}}"
+          ],
+          "path": [
+            "flags",
+            "new-feature"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "DELETA FLAGS",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"is_enabled\": false\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{api_url}}/flags/new-feature",
+          "host": [
+            "{{api_url}}"
+          ],
+          "path": [
+            "flags",
+            "new-feature"
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "api_url",
+      "value": ""
+    }
+  ]
+}
