@@ -72,6 +72,7 @@ A avaliação abaixo considera a solução implementada pelo grupo durante o des
 - O método **DELETE** é solicitado no escopo do trabalho. Porém, a aplicação não possui este método configurado e habilitado. O grupo incluiu este método diretamente no código.
 - Não há uma definição de fuso horário padrão no código, o que pode ocasionar divergências de horários do container. Para isto, foi adicionado uma lógica de instalação de componentes para definição e ajuste do timezone para "America/Sao_Paulo" vinda de dentro do container. 
 - A API está acessível publicamente e não possui mecanismos de autenticação, o que permite que qualquer usuário alcance seus endpoints. Para um ambiente de produção, é necessário implementar controles de autenticação e autorização para restringir o acesso às operações.
+- A API não valida nem restringe os caracteres usados no nome da feature flag. Por isso, é possível criar uma flag com caracteres especiais, como a barra (/). No entanto, esses caracteres podem interferir na forma como a API interpreta o caminho da requisição.
 
 ## 5. Arquitetura e tecnologias
 
@@ -88,6 +89,7 @@ A solução utiliza uma VPC com sub-redes públicas e privadas. A instância EC2
 5. As credenciais são obtidas do AWS Secrets Manager conforme o procedimento configurado pelo grupo.
 
 **Diagrama da arquitetura:** https://viewer.diagrams.net/?tags=%7B%7D&lightbox=1&target=blank&highlight=0000ff&edit=_blank&layers=1&nav=1&title=Diagrama%20sem%20nome.drawio&dark=auto#Uhttps%3A%2F%2Fdrive.google.com%2Fuc%3Fid%3D16jy_sp0eg1MBEux1nwCFF2pAjn8d5WwX%26export%3Ddownload 
+
 **Imagem do diagrama:** ![Arquitetura da Aplicação](doc/image/Arquitetura.png)
 
 ### 5.2 Tecnologias e componentes
@@ -182,23 +184,13 @@ O grupo é composto por cinco integrantes. A equipe utilizou o repositório GitH
 
 - **Repositório e controle de versão:** GitHub — https://github.com/alyfer-oliveira/toggle-master-monolith.git (Branch: release/TCL01)
 
-### 7.1 Contribuições
-
-| Integrante | Contribuições realizadas |
-|---|---|
-| Alyfer Ricardo Sousa de Oliveira | [preencher responsabilidades e entregas] |
-| Diogo da Silva Frota Soares | [preencher responsabilidades e entregas] |
-| Flávio Cardoso de Oliveira Soares | [preencher responsabilidades e entregas] |
-| João Guilherme Schneider da Silva | [preencher responsabilidades e entregas] |
-| Luciano Luan da Silva Alves | [preencher responsabilidades e entregas] |
-
-### 7.2 Desafios e aprendizados
+### 7.1 Desafios e aprendizados
 
 - **Desafio encontrado:** [descrever problema real]
 - **Decisão ou solução adotada:** [descrever o que o grupo fez]
 - **Aprendizado:** [descrever o resultado ou conhecimento adquirido]
 
-## 9. Conclusão e próximos passos
+## 8. Conclusão e próximos passos
 
 A Fase 1 propõe validar o ToggleMaster como um MVP de gerenciamento de *feature flags* e exercitar a implantação de uma aplicação monolítica na AWS. A arquitetura definida separa a execução da aplicação, hospedada na EC2, do armazenamento de dados, fornecido pelo RDS, e utiliza recursos da AWS para segmentação de rede e gestão de credenciais.
 
