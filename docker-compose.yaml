@@ -12,5 +12,10 @@ services:
       - DB_HOST=${DB_HOST}
       - DB_NAME=${DB_NAME}
       - DB_USER=${DB_USER}
-      - DB_PASSWORD=${DB_PASSWORD}
       - DB_PORT=${DB_PORT}
+    secrets:
+      - db_password
+
+secrets:
+  db_password:
+    file: ${DB_PASSWORD_FILE}

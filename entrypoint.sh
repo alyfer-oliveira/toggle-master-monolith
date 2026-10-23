@@ -8,6 +8,9 @@ set -eu
 # 4. Executa o comando de inicialização do banco de dados.
 # 5. Inicia o servidor Gunicorn.
 
+#Recupera a senha do arquivo montado pelo docker
+export DB_PASSWORD="$(sudo cat /run/secrets/db_password)"
+
 # Verifique se as variáveis de ambiente do banco de dados estão definidas
 if [ -z "$DB_HOST" ] || [ -z "$DB_PORT" ] || [ -z "$DB_NAME" ]; then
   echo "Erro: As variáveis de ambiente do banco de dados (DB_HOST, DB_PORT, DB_NAME) devem ser definidas."
