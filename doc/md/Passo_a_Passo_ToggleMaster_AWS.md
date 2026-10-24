@@ -17,7 +17,7 @@ Este documento descreve a infraestrutura criada para executar a aplicação Togg
 
 1. No console AWS, abra **VPC > Your VPCs > Create VPC**.
 2. Crie a VPC com CIDR `10.40.0.0/16`.
-3. Adicione a tag:
+3. Adicione a tag para facilitar o gerenciamento de custos:
    - `Name`: `togglemaster-vpc`
 4. Confirme a criação.
 
@@ -82,7 +82,7 @@ Crie o Security Group `sg-togglemaster-app` na VPC `togglemaster-vpc`.
 6. Associe o Security Group `sg-togglemaster-app`.
 7. Configure o armazenamento como `gp3`, 8 GiB.
 8. Inicie a instância.
-9. Associe o Elastic IP `54.81.198.105` à instância ou à interface de rede correta.
+9. Associe o Elastic IP (no meu caso `54.81.198.105`) à instância ou à interface de rede correta.
 10. Registre o ID da instância e confirme que o status passou para **Running** e as verificações de status foram aprovadas.
 
 ## 7. Atribuir a função/permissão IAM
@@ -155,7 +155,8 @@ docker compose version
 
 ## 10. Transferir o código para a EC2
 
-Transfira o projeto para a instância por SFTP, conforme realizado pelo grupo. Exemplo a partir da máquina local:
+Baixe o código e utilize a branch: release/TCL01
+Transfira o código para a instância por SFTP, conforme realizado pelo grupo. Exemplo a partir da máquina local:
 
 ```bash
 sftp -i /caminho/para/sua-chave.pem ec2-user@54.81.198.105
@@ -232,39 +233,64 @@ Exemplo de estrutura JSON (preencha os valores no Secrets Manager, não neste do
 No diretório do projeto, crie ou edite `scripts/02-deploy-app.sh`. O exemplo abaixo carrega os valores dos segredos sem imprimi-los. Substitua `idcredencial1` e `idcredencial2` pelos nomes/ARNs reais dos dois segredos e complete a linha que executa o container conforme o comando utilizado pelo projeto.
 
 ```bash
-#!/usr/bin/env bash
+mkdir -p ./scripts
+```
+
+```bash
+vim ./scripts/02-deploy-app.sh
+```
+
+```bash
 set -euo pipefail
 set +x
+umask 077
 
 REGION="us-east-1"
-API_SECRET_ID="idcredencial1"
-DB_SECRET_ID="idcredencial2"
-CAMINHO_GIT="/path/to/"
+API_SECRET_ID="id_secrets_api" #substituir pelo id do secrets correspondente à aplicação
+DB_SECRET_ID="id_secrets_rds" #substituir pelo id do secrets correspondente ao rds
+CAMINHO_GIT="/path/to/toggle-master-monolith" #substituir pelo caminho do repo git
 
-API_JSON="$(aws secretsmanager get-secret-value \
-  --secret-id "$API_SECRET_ID" \
-  --region "$REGION" \
-  --query SecretString \
-  --output text)"
+SECRET_DIR="/run/togglemaster-secrets"
+sudo install -d -m 700 "$SECRET_DIR"
 
-DB_JSON="$(aws secretsmanager get-secret-value \
-  --secret-id "$DB_SECRET_ID" \
-  --region "$REGION" \
-  --query SecretString \
-  --output text)"
+API_TMP="$(sudo mktemp "$SECRET_DIR/api.XXXXXX")"
+DB_TMP="$(sudo mktemp "$SECRET_DIR/db.XXXXXX")"
+PASS_TMP="$(sudo mktemp "$SECRET_DIR/pass.XXXXXX")"
+trap 'sudo rm -f -- "$API_TMP" "$DB_TMP" "$PASS_TMP"' EXIT
 
-export DB_HOST="$(jq -r '.DB_HOST' <<< "$API_JSON")"
-export DB_NAME="$(jq -r '.DB_NAME' <<< "$API_JSON")"
-export DB_PORT="$(jq -r '.DB_PORT' <<< "$API_JSON")"
-export TZ="$(jq -r '.TZ' <<< "$API_JSON")"
-export DB_USER="$(jq -r '.username' <<< "$DB_JSON")"
-export DB_PASSWORD="$(jq -r '.password' <<< "$DB_JSON")"
+sudo sh -c 'aws secretsmanager get-secret-value \
+  --secret-id "$1" --region "$2" \
+  --query SecretString --output text > "$3"' \
+  sh "$API_SECRET_ID" "$REGION" "$API_TMP"
+
+sudo sh -c 'aws secretsmanager get-secret-value \
+  --secret-id "$1" --region "$2" \
+  --query SecretString --output text > "$3"' \
+  sh "$DB_SECRET_ID" "$REGION" "$DB_TMP"
+
+sudo jq -e '.DB_HOST and .DB_NAME and .DB_PORT' "$API_TMP" >/dev/null
+sudo jq -e '.username and .password' "$DB_TMP" >/dev/null
+sudo sh -c 'jq -j ".password" "$1" > "$2"' sh "$DB_TMP" "$PASS_TMP"
+sudo chmod 600 "$PASS_TMP"
+
+export DB_HOST="$(sudo jq -r '.DB_HOST' "$API_TMP")"
+export DB_NAME="$(sudo jq -r '.DB_NAME' "$API_TMP")"
+export DB_PORT="$(sudo jq -r '.DB_PORT' "$API_TMP")"
+export TZ="$(sudo jq -r '.TZ // "UTC"' "$API_TMP")"
+export DB_USER="$(sudo jq -r '.username' "$DB_TMP")"
+
+sudo mv -f -- "$PASS_TMP" "$SECRET_DIR/db_password"
+export DB_PASSWORD_FILE="$SECRET_DIR/db_password"
 
 unset API_JSON DB_JSON
 
 cd $CAMINHO_GIT
 
-docker compose up -d --build
+docker compose up -d app --build
+
+unset DB_HOST DB_NAME DB_PORT TZ DB_USER DB_PASSWORD
+```
+
 
 Salve e proteja o script:
 
@@ -305,7 +331,7 @@ O comando `cd ./scripts` só deve ser usado se o script e seus caminhos relativo
 4. A partir de uma máquina externa, valide pelo Elastic IP e endpoint configurados:
 
    ```bash
-   curl -i http://54.81.198.105:5000/
+   curl -i http://ippublico:5000/
    ```
 
    Se o acesso for por HTTPS, utilize o domínio/certificado configurado. A regra TCP/443 no Security Group não configura TLS por si só.
@@ -322,7 +348,7 @@ O comando `cd ./scripts` só deve ser usado se o script e seus caminhos relativo
 | EC2 acessível por SSH somente a partir do IP autorizado | [Aprovado] |
 | Container iniciado e aplicação respondendo | [Aprovado] |
 | Aplicação acessível pelo IP/DNS público | [Aprovado] |
-| Operações CRUD concluídas | [Pendente] |
+| Operações CRUD concluídas | [Aprovado] |
 | Conexão da aplicação com o RDS validada | [Aprovado] |
 | Segredos recuperados sem impressão de valores | [Aprovado] |
 | RDS sem acesso público e restrito ao SG da EC2 | [Aprovado] |
