@@ -1,5 +1,6 @@
 import os
 import click
+import re
 from flask import Flask, request, jsonify
 import psycopg2
 from psycopg2.extras import RealDictCursor
@@ -10,6 +11,7 @@ DB_HOST = os.getenv("DB_HOST")
 DB_NAME = os.getenv("DB_NAME")
 DB_USER = os.getenv("DB_USER")
 DB_PASSWORD = os.getenv("DB_PASSWORD")
+FLAG_NAME_PATTERN = re.compile(r"^[A-Za-z0-9_-]{1,100}$")
 
 def get_db_connection():
     conn = psycopg2.connect(
@@ -46,6 +48,9 @@ def init_db():
 def init_db_command():
     init_db()
 
+def validar_nome_flag(nome):
+    return bool(FLAG_NAME_PATTERN.fullmatch(nome))
+
 @app.route('/health', methods=['GET'])
 def health_check():
     return jsonify({"status": "ok"}), 200
@@ -58,6 +63,11 @@ def create_flag():
     
     name = data['name']
     is_enabled = data.get('is_enabled', False)
+
+    if not validar_nome_flag(name):
+        return jsonify({
+            "error": "Nome inválido. Use apenas letras, números, hífen e sublinhado."
+        }), 400
     
     try:
         conn = get_db_connection()

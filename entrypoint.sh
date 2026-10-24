@@ -9,7 +9,9 @@ set -eu
 # 5. Inicia o servidor Gunicorn.
 
 #Recupera a senha do arquivo montado pelo docker
-export DB_PASSWORD="$(sudo cat /run/secrets/db_password)"
+if [ -f /run/secrets/db_password ]; then
+    export DB_PASSWORD="$(cat /run/secrets/db_password)"
+fi
 
 # Verifique se as variáveis de ambiente do banco de dados estão definidas
 if [ -z "$DB_HOST" ] || [ -z "$DB_PORT" ] || [ -z "$DB_NAME" ]; then

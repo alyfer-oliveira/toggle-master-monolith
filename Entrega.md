@@ -50,9 +50,9 @@ O ToggleMaster é considerado um monolito porque suas funcionalidades de API sã
 
 ## 3. Análise dos 12 fatores (12-Factor App)
 
-A avaliação abaixo considera a solução implementada pelo grupo durante o desafio. “Atende parcialmente” indica que existe uma implementação inicial, mas há melhorias necessárias para maior segurança, repetibilidade ou confiabilidade em produção. As evidências devem corresponder à configuração efetivamente usada e podem ser incluídas como capturas de tela, trechos de configuração, comandos ou referências ao repositório.
+A avaliação abaixo considera a solução implementada pelo grupo durante o desafio. “Atende parcialmente” indica que existe uma implementação inicial, mas há melhorias necessárias para maior segurança, repetibilidade ou confiabilidade em produção.
 
-| Nº | Fator | Avaliação | Análise, evidência e evolução recomendada |
+| Nº | Fator | Avaliação | Análise e evolução recomendada |
 |---:|---|---|---|
 | 1 | **Base de código** | **Atende** | O projeto está versionado em GitHub: https://github.com/dougls/toggle-master-monolith. O grupo utilizou a branch `main`, cuja versão de referência corresponde à Pull Request nº 2, mergeada pelo usuário `dougls`, conforme descrito no modelo do projeto. Para comprovar a versão implantada, registrar também o commit utilizado e demonstrar que eventuais alterações feitas pelo grupo foram versionadas. |
 | 2 | **Dependências** | **Atende** | As dependências Python são declaradas em `requirements.txt` e instaladas pelo `Dockerfile` com `pip install --no-cache-dir -r requirements.txt`. Para maior reprodutibilidade, manter versões fixadas e atualizar dependências de forma controlada. |
@@ -208,8 +208,13 @@ secrets:
 E no arquivo entrypoint, o processo de execução lê o segredo pelo caminho montado em /run/secrets/db_password:
 
 ```bash
-export DB_PASSWORD="$(sudo cat /run/secrets/db_password)"
+if [ -f /run/secrets/db_password ]; then
+    export DB_PASSWORD="$(cat /run/secrets/db_password)"
+fi
 ```
+
+#### 7.1.4 Erro em flags criadas com caracteres como "/"
+A API aceitava nomes com caracteres especiais, mas alguns deles interferiam nas rotas. Ao criar a flag feature/teste, por exemplo, a barra (/) era interpretada como separador entre partes do caminho da requisição. Por isso, a API não conseguia identificar corretamente a flag ao tentar editá-la. Foi definida uma validação para aceitar somente letras, números, hífen (-) e sublinhado (_) nos nomes das flags, com limite de 100 caracteres. Nomes com outros caracteres são rejeitados pela API com uma resposta 400 Bad Request. A decisão foi restringir os caracteres aceitos para evitar mudanças na estrutura das rotas e preservar o funcionamento dos demais métodos da API. Com essa regra, nomes como feature-teste e feature_teste são aceitos, enquanto feature/teste é rejeitado.
 
 ## 8. Conclusão e próximos passos
 
