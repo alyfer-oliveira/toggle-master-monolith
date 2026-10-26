@@ -216,6 +216,33 @@ fi
 #### 7.1.4 Erro em flags criadas com caracteres como "/"
 A API aceitava nomes com caracteres especiais, mas alguns deles interferiam nas rotas. Ao criar a flag feature/teste, por exemplo, a barra (/) era interpretada como separador entre partes do caminho da requisição. Por isso, a API não conseguia identificar corretamente a flag ao tentar editá-la. Foi definida uma validação para aceitar somente letras, números, hífen (-) e sublinhado (_) nos nomes das flags, com limite de 100 caracteres. Nomes com outros caracteres são rejeitados pela API com uma resposta 400 Bad Request. A decisão foi restringir os caracteres aceitos para evitar mudanças na estrutura das rotas e preservar o funcionamento dos demais métodos da API. Com essa regra, nomes como feature-teste e feature_teste são aceitos, enquanto feature/teste é rejeitado.
 
+#### 7.1.5 Primeiro contato com a AWS
+Parte do grupo nunca havia utilizado o console da AWS. O provisionamento manual envolve muitas telas e recursos que dependem uns dos outros (VPC, sub-redes, tabelas de rotas, Internet Gateway, Security Groups, RDS e EC2), e um detalhe errado em qualquer um deles costuma aparecer só mais tarde, como falha de conexão em outro recurso. O grupo seguiu um roteiro passo a passo, conferiu cada recurso após a criação e registrou os problemas encontrados, descritos nos itens a seguir.
+
+#### 7.1.6 Rota da sub-rede pública criada em IPv6
+Ao adicionar a rota para o Internet Gateway na tabela de rotas pública, o console sugeriu os destinos `::/32` e `::/0`, e a rota foi salva com eles em vez de `0.0.0.0/0`. A EC2 ficou em execução e com IP público, mas o SSH não conectava, porque a VPC usa apenas IPv4 e a sub-rede não tinha caminho de saída para a internet. Como o Security Group estava correto, o problema só foi encontrado revisando a tabela de rotas. A rota IPv6 foi removida e substituída por `0.0.0.0/0 → Internet Gateway`, e o acesso passou a funcionar imediatamente, sem reiniciar a instância.
+
+#### 7.1.7 Engine do RDS selecionado como Aurora por padrão
+Na criação do banco pelo console, a tela abriu com o engine Aurora PostgreSQL e a classe `db.r7g.large`, bem mais cara e acima do limite de instâncias do AWS Academy. Como as opções do Aurora (cluster, *Cluster storage configuration*) são diferentes das do RDS, a seção de classes de instância esperada não aparecia. O grupo trocou o engine para PostgreSQL (RDS), o que liberou a classe `db.t3.micro` em implantação Single-AZ, compatível com o orçamento do MVP.
+
+#### 7.1.8 Banco `togglemaster` não criado no RDS
+O campo *Initial database name* fica em *Additional configuration*, no fim da página de criação do RDS, e ficou em branco. A instância subiu apenas com o banco padrão `postgres`, e a aplicação falhou com `database "togglemaster" does not exist`. A falha confirmou que rede, Security Groups e credenciais estavam corretos, já que a conexão chegou ao servidor. O grupo criou o banco a partir da EC2 com `CREATE DATABASE togglemaster` e, em seguida, executou `flask init-db` para criar a tabela `flags`, passo que fora do Docker não é feito automaticamente pelo `entrypoint.sh`.
+
+#### 7.1.9 Permissão negada no schema `public` ao criar a tabela
+Ao executar o `flask init-db` com um usuário próprio da aplicação, o `togglemaster_app`, sem privilégios administrativos, o PostgreSQL recusou a criação da tabela com `permission denied for schema public`. Desde a versão 15, apenas o dono do banco pode criar objetos no schema `public`. O grupo concedeu a permissão `CREATE` somente durante a criação da tabela e a revogou logo depois, mantendo o princípio do menor privilégio. O episódio também revelou uma falha do código: o comando captura a exceção, imprime a mensagem e termina com código 0, de modo que um pipeline automatizado não perceberia o erro.
+
+#### 7.1.10 Serviço systemd sem acesso ao banco
+Com a aplicação executando como serviço systemd, toda consulta ao banco falhava com `could not open certificate file ... Permission denied`. A causa estava no reforço de segurança da unidade: `ProtectHome=true` bloqueia o acesso a `/home`, e a biblioteca do PostgreSQL trata esse bloqueio como erro ao procurar um certificado de cliente opcional nessa pasta. A configuração foi trocada para `ProtectHome=tmpfs`, que apresenta ao serviço um `/home` vazio. A proteção foi mantida e a conexão TLS com o RDS passou a funcionar.
+
+#### 7.1.11 Compatibilidade de versões entre o código e o servidor
+O projeto fixa Python 3.9 e `psycopg2-binary==2.9.5`, que não possui pacote pronto para versões recentes do Python; em distribuições com Python 3.12, como o Ubuntu 24.04, o `pip install` falha. No ambiente local, o Docker resolve o problema ao trazer o próprio Python 3.9. Na AWS, a EC2 usa Amazon Linux 2023, cujo Python padrão também é o 3.9, evitando falhas de instalação sem alterar o código. No banco, a escolha foi a inversa: em vez do PostgreSQL 13 do `docker-compose.yaml`, que já saiu do suporte padrão e geraria cobrança de suporte estendido, foi usada uma versão atual no RDS. Essa diferença foi registrada como lacuna do fator X (paridade entre desenvolvimento e produção).
+
+#### 7.1.12 Porta da aplicação no Security Group
+O enunciado orienta liberar as portas 80 e 443, mas a aplicação escuta na porta 5000. Sem uma regra para essa porta no Security Group da EC2, a API não ficava acessível externamente. O grupo liberou a porta 5000 para acesso público e restringiu a porta 22 (SSH) a um único IP (`/32`). Em produção, a alternativa é publicar a API nas portas 80/443 por meio de um proxy reverso ou de um load balancer com certificado TLS.
+
+#### 7.1.13 Estimativa de custos em local diferente da região
+Na Calculadora de Preços da AWS, a busca de serviços abriu com o tipo de local *Local Zone* (US East – Boston), que lista poucos serviços, não oferece o RDS e apresenta preços diferentes dos da região. O tipo de local foi alterado para *Region* (US East – N. Virginia), a mesma região da implantação, e cada serviço foi configurado como On-Demand, já que algumas telas vinham com planos de desconto (Savings Plans) selecionados por padrão, o que subestimaria o custo.
+
 ## 8. Conclusão e próximos passos
 
 A Fase 1 propõe validar o ToggleMaster como um MVP de gerenciamento de *feature flags* e exercitar a implantação de uma aplicação monolítica na AWS. A arquitetura definida separa a execução da aplicação, hospedada na EC2, do armazenamento de dados, fornecido pelo RDS, e utiliza recursos da AWS para segmentação de rede e gestão de credenciais.
