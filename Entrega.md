@@ -19,7 +19,7 @@
 - **Repositório do grupo:** https://github.com/alyfer-oliveira/toggle-master-monolith.git 
 - **Diagrama da arquitetura:** https://viewer.diagrams.net/?tags=%7B%7D&lightbox=1&target=blank&highlight=0000ff&edit=_blank&layers=1&nav=1&title=Diagrama%20sem%20nome.drawio&dark=auto#Uhttps%3A%2F%2Fdrive.google.com%2Fuc%3Fid%3D16jy_sp0eg1MBEux1nwCFF2pAjn8d5WwX%26export%3Ddownload
 - **Vídeo de demonstração (até 15 minutos):** https://youtu.be/wXdt0U5xras
-- **Aplicação implantada (IP ou DNS):** http://54.81.198.105:5000
+- **Aplicação implantada (IP ou DNS):** http://54.81.198.105:5000/health
 - **Estimativa da AWS:** https://calculator.aws/#/estimate?id=f120c50d60e2adcf69d6d7a434820ba0599e6d03
 
 ---
@@ -146,7 +146,7 @@ A solução utiliza uma VPC com sub-redes públicas e privadas. A instância EC2
 
 **Execução na AWS:** [Passo a Passo de Execução](doc/md/Passo_a_Passo_ToggleMaster_AWS.md)
 
-**Endpoint público e porta:** http://54.81.198.105:5000
+**Endpoint público e porta:** http://54.81.198.105:5000/health
 
 A raiz `/` não possui rota na aplicação e retorna 404. Para verificar se a aplicação está no ar, use `/health`.
 
