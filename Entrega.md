@@ -148,6 +148,8 @@ A solução utiliza uma VPC com sub-redes públicas e privadas. A instância EC2
 
 **Endpoint público e porta:** http://54.81.198.105:5000
 
+A raiz `/` não possui rota na aplicação e retorna 404. Para verificar se a aplicação está no ar, use `/health`.
+
 ### Exemplos de requisições para CRUD
 
 A tabela abaixo apresenta os endpoints utilizados para testar as operações de criação, consulta, atualização e exclusão de *feature flags*.
